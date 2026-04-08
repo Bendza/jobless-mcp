@@ -27,6 +27,20 @@ from mcp.server.fastmcp import FastMCP
 from .tools import register_tools
 
 
+# FastMCP reads host/port from the constructor (or from its Settings
+# object), NOT from run() kwargs. Resolve them here at import time so
+# stdio mode just ignores them and http mode picks them up automatically.
+_HOST = os.environ.get("HOST", "0.0.0.0")
+try:
+    _PORT = int(os.environ.get("PORT", "8100"))
+except ValueError:
+    print(
+        f"Invalid PORT value: {os.environ.get('PORT')!r}",
+        file=sys.stderr,
+    )
+    sys.exit(2)
+
+
 mcp = FastMCP(
     "jobless",
     instructions=(
@@ -42,6 +56,8 @@ mcp = FastMCP(
         "If it returns error='rate_limit_exceeded', tell them their free "
         "daily limit is hit and they can upgrade at the upgrade_url."
     ),
+    host=_HOST,
+    port=_PORT,
 )
 register_tools(mcp)
 
@@ -55,16 +71,7 @@ def main() -> None:
         return
 
     if transport == "http":
-        host = os.environ.get("HOST", "0.0.0.0")
-        try:
-            port = int(os.environ.get("PORT", "8100"))
-        except ValueError:
-            print(
-                f"Invalid PORT value: {os.environ.get('PORT')!r}",
-                file=sys.stderr,
-            )
-            sys.exit(2)
-        mcp.run(transport="streamable-http", host=host, port=port)
+        mcp.run(transport="streamable-http")
         return
 
     print(
