@@ -19,10 +19,13 @@ DEFAULT_TIMEOUT = 30.0
 class JoblessClient:
     """Synchronous httpx client for the Jobless REST API.
 
-    The API key is read from the `JOBLESS_API_KEY` environment variable
-    unless passed explicitly. The base URL defaults to https://api.jobless.dev
-    but can be overridden with `JOBLESS_API_BASE` for local development or
-    self-hosted deployments.
+    The API key is resolved in this order:
+      1. Explicit ``api_key`` kwarg (used in hosted HTTP mode — extracted
+         from the per-request Authorization header by the tool layer)
+      2. ``JOBLESS_API_KEY`` environment variable (stdio / local mode)
+
+    The base URL defaults to https://api.jobless.dev but can be overridden
+    with ``JOBLESS_API_BASE`` for local development or self-hosted deployments.
     """
 
     def __init__(

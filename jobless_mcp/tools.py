@@ -10,25 +10,70 @@ Each tool is a thin translator — it converts MCP tool arguments into
 HTTP calls against api.jobless.dev and returns the JSON body verbatim.
 Errors are surfaced as structured dicts so Claude can explain them to
 the user.
+
+API key resolution supports both transports:
+- **stdio (local)**: Read from JOBLESS_API_KEY env var at client construction
+- **streamable-http (hosted)**: Extract from per-request Authorization header
+  via the FastMCP Context object. Each user sends their own Bearer token.
 """
 
+import os
 from typing import Any
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import Context, FastMCP
 
 from .client import JoblessClient
 
 
-def register_tools(mcp: FastMCP) -> None:
-    """Register Jobless tools with the given FastMCP instance.
+# Module-level fallback for stdio mode where ctx has no HTTP request.
+_ENV_API_KEY = os.environ.get("JOBLESS_API_KEY", "")
 
-    Called once at server startup from server.py. A single JoblessClient
-    is created per tool call because the API key may be session-scoped
-    in hosted HTTP mode (different users hitting the same process).
+
+def _resolve_api_key(ctx: Context | None) -> str | None:
     """
+    Resolve the caller's Jobless API key.
+
+    In hosted HTTP mode, the MCP server receives each request with the
+    user's Bearer token in the Authorization header. We pull it off the
+    underlying Starlette request via the FastMCP Context.
+
+    In stdio mode there's no HTTP request, so we fall back to the
+    JOBLESS_API_KEY environment variable set by the user's Claude client
+    config.
+    """
+    if ctx is not None:
+        try:
+            request = ctx.request_context.request
+            auth = request.headers.get("authorization", "") if request else ""
+            if auth and auth.lower().startswith("bearer "):
+                return auth[7:].strip() or None
+        except Exception:
+            # Stdio mode, or a FastMCP version without request access —
+            # fall through to env var.
+            pass
+    return _ENV_API_KEY or None
+
+
+def _missing_auth_error() -> dict[str, Any]:
+    return {
+        "error": "missing_auth",
+        "message": (
+            "No Jobless API key was provided. Generate one at "
+            "https://jobless.dev/mcp and add it to your MCP client config as "
+            "'Authorization: Bearer <your key>'."
+        ),
+    }
+
+
+def register_tools(mcp: FastMCP) -> None:
+    """Register all Jobless tools with the given FastMCP instance."""
 
     @mcp.tool()
-    def get_best_matches(limit: int = 10, page: int = 1) -> dict[str, Any]:
+    def get_best_matches(
+        limit: int = 10,
+        page: int = 1,
+        ctx: Context | None = None,
+    ) -> dict[str, Any]:
         """
         Get the user's top personalized job matches from their Jobless profile.
 
@@ -57,9 +102,13 @@ def register_tools(mcp: FastMCP) -> None:
             plus MCP metadata `tier`, `matches_used_today`, `matches_remaining_today`.
             On error: dict with `error` key and a human-readable `message`.
         """
+        api_key = _resolve_api_key(ctx)
+        if not api_key:
+            return _missing_auth_error()
+
         limit = max(1, min(limit, 20))
         page = max(1, page)
-        client = JoblessClient()
+        client = JoblessClient(api_key=api_key)
         try:
             return client.get(
                 "/jobs/best-matches/",
@@ -69,7 +118,7 @@ def register_tools(mcp: FastMCP) -> None:
             client.close()
 
     @mcp.tool()
-    def get_job(job_id: str) -> dict[str, Any]:
+    def get_job(job_id: str, ctx: Context | None = None) -> dict[str, Any]:
         """
         Get full details for a specific job by its ID.
 
@@ -91,34 +140,36 @@ def register_tools(mcp: FastMCP) -> None:
                 "error": "invalid_argument",
                 "message": "job_id is required and must be a non-empty string.",
             }
-        client = JoblessClient()
+
+        api_key = _resolve_api_key(ctx)
+        if not api_key:
+            return _missing_auth_error()
+
+        client = JoblessClient(api_key=api_key)
         try:
             return client.get(f"/jobs/{job_id}/")
         finally:
             client.close()
 
     @mcp.tool()
-    def get_profile_status() -> dict[str, Any]:
+    def get_profile_status(ctx: Context | None = None) -> dict[str, Any]:
         """
         Get the current user's Jobless profile state and MCP usage.
 
-        Use this to check:
-        - Whether the user has uploaded a resume yet (`has_resume`)
-        - Their current tier (`tier`: free / pro / ultimate)
-        - How many matches they have left today (`matches_remaining_today`)
-        - When the daily limit resets (`resets_at`)
-
-        Useful at the start of a conversation or when the user asks "how am I
-        doing?", "what tier am I on?", or "how many matches do I have left?".
-
-        If `has_resume` is false, direct the user to `onboarding_url` to upload
-        their resume before calling `get_best_matches`.
+        Use this to check whether the user has uploaded a resume yet, what
+        tier they're on, and how many free matches they have left today.
+        Useful at the start of a conversation or when the user asks
+        "how am I doing?" or "what tier am I on?".
 
         Returns:
             Dict with `has_resume`, `tier`, `matches_used_today`,
             `matches_remaining_today`, `resets_at`, `upgrade_url`, `onboarding_url`.
         """
-        client = JoblessClient()
+        api_key = _resolve_api_key(ctx)
+        if not api_key:
+            return _missing_auth_error()
+
+        client = JoblessClient(api_key=api_key)
         try:
             return client.get("/user/mcp/status/")
         finally:
