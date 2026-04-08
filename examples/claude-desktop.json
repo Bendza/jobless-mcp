@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "jobless": {
+      "url": "https://mcp.jobless.dev",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
