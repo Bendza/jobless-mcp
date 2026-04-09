@@ -1,0 +1,15 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - joblessApiKey
+    properties:
+      joblessApiKey:
+        type: string
+        description: Your Jobless API key. Get one at https://jobless.dev/mcp
+  commandFunction:
+    |-
+    (config) => ({ command: 'jobless-mcp', args: [], env: { JOBLESS_API_KEY: config.joblessApiKey } })

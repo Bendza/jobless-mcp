@@ -1,0 +1,44 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.bendza/jobless-mcp",
+  "title": "Jobless",
+  "description": "Personalized job search MCP. Get AI-matched jobs ranked against your resume inside Claude, Cursor, and other MCP clients.",
+  "repository": {
+    "url": "https://github.com/bendza/jobless-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://jobless.dev/mcp",
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "jobless-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "JOBLESS_API_KEY",
+          "description": "Your Jobless API key. Get one at https://jobless.dev/mcp",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.jobless.dev/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer token. Format: Bearer YOUR_API_KEY",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

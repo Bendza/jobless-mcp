@@ -1,0 +1,38 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "jobless-mcp",
+  "owner": {
+    "name": "Jobless",
+    "email": "hello@jobless.dev"
+  },
+  "metadata": {
+    "description": "Personalized job search MCP. Get AI-matched jobs ranked against your resume inside Claude.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "jobless-mcp",
+      "source": "./",
+      "description": "Personalized job search inside Claude. Returns ranked job matches based on your uploaded resume, with match scores, salary ranges, and direct apply links.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jobless",
+        "email": "hello@jobless.dev"
+      },
+      "homepage": "https://jobless.dev/mcp",
+      "repository": "https://github.com/bendza/jobless-mcp",
+      "license": "MIT",
+      "keywords": ["mcp", "job-search", "career", "resume", "claude", "ai-tools"],
+      "category": "productivity",
+      "mcpServers": {
+        "jobless": {
+          "type": "http",
+          "url": "https://mcp.jobless.dev/mcp",
+          "headers": {
+            "Authorization": "Bearer YOUR_API_KEY"
+          }
+        }
+      }
+    }
+  ]
+}

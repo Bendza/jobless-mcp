@@ -11,6 +11,8 @@ from typing import Any
 
 import httpx
 
+from . import __version__
+
 
 DEFAULT_BASE_URL = "https://api.jobless.dev"
 DEFAULT_TIMEOUT = 30.0
@@ -52,7 +54,7 @@ class JoblessClient:
             base_url=self.base_url,
             headers={
                 "Authorization": f"Bearer {self.api_key}",
-                "User-Agent": "jobless-mcp/0.1.0",
+                "User-Agent": f"jobless-mcp/{__version__}",
             },
             timeout=timeout,
         )

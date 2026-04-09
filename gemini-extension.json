@@ -1,0 +1,17 @@
+{
+  "name": "jobless-mcp",
+  "description": "Personalized job search MCP. Get AI-matched jobs ranked against your resume.",
+  "version": "0.1.0",
+  "settings": [
+    {
+      "name": "API Key",
+      "description": "Your Jobless API key. Get one at https://jobless.dev/mcp",
+      "envVar": "JOBLESS_API_KEY"
+    }
+  ],
+  "mcpServers": {
+    "jobless": {
+      "httpUrl": "https://mcp.jobless.dev/mcp"
+    }
+  }
+}

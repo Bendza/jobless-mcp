@@ -1,53 +1,87 @@
-# jobless-mcp
+[![Install in Cursor](https://img.shields.io/badge/Install_in-Cursor-000000?style=flat-square&logoColor=white)](https://cursor.com/en/install-mcp?name=jobless&config=eyJ1cmwiOiAiaHR0cHM6Ly9tY3Auam9ibGVzcy5kZXYvbWNwIn0%3D)
+[![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=jobless&config=%7B%22type%22%3A%20%22http%22%2C%20%22url%22%3A%20%22https%3A//mcp.jobless.dev/mcp%22%7D)
 
-[![PyPI](https://img.shields.io/pypi/v/jobless-mcp.svg)](https://pypi.org/project/jobless-mcp/)
+# Jobless MCP
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://github.com/bendza/jobless-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/bendza/jobless-mcp/actions/workflows/ci.yml)
 
-> Personalized job search inside Claude. Ask Claude what your best job matches are — get ranked results from Jobless's index of 10,000+ jobs across Greenhouse, Ashby, Lever, and more.
+> Personalized job search inside Claude. Get ranked job matches based on your actual skills, not keywords. Works in Claude Code, Desktop, Cursor, Windsurf, VS Code, Gemini CLI, and more.
 
-## What it does
+**[Get your API key](https://jobless.dev/mcp)** | **[Documentation](https://jobless.dev/mcp)** | **[Issues](https://github.com/bendza/jobless-mcp/issues)**
 
-Jobless MCP gives Claude (Code, Desktop, Cursor, Zed, and any other MCP-aware client) three tools:
+## Why Jobless MCP?
 
-- **`get_best_matches`** — your top personalized job matches based on your Jobless resume
-- **`get_job`** — full details for any specific job
-- **`get_profile_status`** — your tier, daily usage, and resume state
+### Without Jobless
 
-Ask Claude naturally:
+- Searching job boards manually with keyword filters
+- Getting irrelevant results because "Python" matches a snake handler job
+- No idea how well you actually match a role until you read the whole posting
+- Context-switching between your AI assistant and browser tabs
 
-> What are my best job matches today?
-> Tell me more about the Anthropic one.
-> How many matches do I have left today?
+### With Jobless
 
-Claude calls the right tool, paginates through results, and explains errors in plain language.
+Ask Claude naturally and get jobs ranked against your actual resume:
 
-## Quick start
-
-### 1. Create a Jobless account + upload your resume
-
-Sign up at [jobless.dev](https://jobless.dev). Upload your resume on the onboarding page — this builds the profile that drives match ranking.
-
-### 2. Get your API key
-
-Visit [jobless.dev/mcp](https://jobless.dev/mcp) — after signing in, your API key is auto-generated and the install commands are pre-filled with it. Copy the one for your client.
-
-### 3. Connect Claude
-
-#### Claude Code
-
-```bash
-claude mcp add jobless --url https://mcp.jobless.dev --header "Authorization: Bearer YOUR_API_KEY"
+```
+What are my best job matches today?
 ```
 
-#### Claude Desktop
+Claude calls `get_best_matches` and returns:
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+```
+Top 5 matches personalized to your resume:
+
+1. [94%] Staff AI Engineer - Anthropic
+   Remote | Python, PyTorch, Distributed Systems
+   role 92% | skills 95% | seniority 96%
+
+2. [91%] Senior ML Engineer - Vercel
+   Remote | Go, Postgres, Kubernetes, LLM infra
+   role 88% | skills 93% | seniority 91%
+
+3. [89%] Founding Engineer - Cursor
+   San Francisco | TypeScript, React, LLMs
+   role 92% | skills 88% | seniority 87%
+```
+
+10,000+ jobs indexed across Greenhouse, Ashby, Lever, and more. Updated daily.
+
+## Quick Start
+
+### 1. Get your API key
+
+Visit **[jobless.dev/mcp](https://jobless.dev/mcp)** -- drop your resume and get an API key instantly (no signup required for 10 matches/day).
+
+### 2. Connect your client
+
+Remote server URL:
+
+```
+https://mcp.jobless.dev/mcp
+```
+
+<details>
+<summary><b>Claude Code</b></summary>
+
+```bash
+claude mcp add jobless --url https://mcp.jobless.dev/mcp --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+</details>
+
+<details>
+<summary><b>Claude Desktop</b></summary>
+
+Jobless is available as a Claude Connector. Go to **Settings > Connectors** and search for **Jobless**.
+
+Or add manually to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
 ```json
 {
   "mcpServers": {
     "jobless": {
-      "url": "https://mcp.jobless.dev",
+      "url": "https://mcp.jobless.dev/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }
@@ -56,15 +90,169 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 }
 ```
 
-Restart Claude Desktop.
+Restart Claude Desktop after saving.
 
-#### Cursor
+</details>
 
-Settings → MCP → Add server, paste the same JSON as Claude Desktop.
+<details>
+<summary><b>Cursor</b></summary>
 
-#### Local install (optional, privacy mode)
+Add to `~/.cursor/mcp.json`:
 
-If you'd rather run the server locally as a subprocess:
+```json
+{
+  "mcpServers": {
+    "jobless": {
+      "url": "https://mcp.jobless.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>VS Code</b></summary>
+
+Add to `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "jobless": {
+      "type": "http",
+      "url": "https://mcp.jobless.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Windsurf</b></summary>
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "jobless": {
+      "serverUrl": "https://mcp.jobless.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Zed</b></summary>
+
+Add to Zed settings:
+
+```json
+{
+  "context_servers": {
+    "jobless": {
+      "url": "https://mcp.jobless.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Gemini CLI</b></summary>
+
+Add to `~/.gemini/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "jobless": {
+      "httpUrl": "https://mcp.jobless.dev/mcp"
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>OpenCode</b></summary>
+
+Add to `opencode.json`:
+
+```json
+{
+  "mcp": {
+    "jobless": {
+      "type": "remote",
+      "url": "https://mcp.jobless.dev/mcp",
+      "enabled": true
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Warp</b></summary>
+
+Settings > MCP Servers > Add MCP Server:
+
+```json
+{
+  "jobless": {
+    "url": "https://mcp.jobless.dev/mcp",
+    "headers": {
+      "Authorization": "Bearer YOUR_API_KEY"
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Kiro</b></summary>
+
+Add to `~/.kiro/settings/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "jobless": {
+      "url": "https://mcp.jobless.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Local install (pip, privacy mode)</b></summary>
+
+Run the server locally as a subprocess. Your API key never touches `mcp.jobless.dev`:
 
 ```bash
 pip install jobless-mcp
@@ -85,54 +273,175 @@ Then in your client config:
 }
 ```
 
-The local mode talks directly to `api.jobless.dev` — your key never touches `mcp.jobless.dev`. Same tools, same backend.
+</details>
+
+<details>
+<summary><b>Other clients (generic remote MCP)</b></summary>
+
+If your client supports remote MCP servers:
+
+```json
+{
+  "mcpServers": {
+    "jobless": {
+      "url": "https://mcp.jobless.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+If your client only supports stdio, use [mcp-remote](https://github.com/anthropics/mcp-remote) as a bridge:
+
+```json
+{
+  "mcpServers": {
+    "jobless": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.jobless.dev/mcp", "--header", "Authorization: Bearer YOUR_API_KEY"]
+    }
+  }
+}
+```
+
+</details>
+
+## Tools
+
+Three tools, zero configuration. Claude decides which to call based on what you ask.
+
+### `get_best_matches`
+
+Get your top personalized job matches ranked against your resume.
+
+**Best for:** Daily job check-ins, exploring what's out there, finding roles that match your skills
+
+**Prompt example:**
+> "What are my best job matches today?"
+
+**Usage:**
+```json
+{
+  "name": "get_best_matches",
+  "arguments": {
+    "limit": 10,
+    "page": 1
+  }
+}
+```
+
+**Returns:**
+```json
+{
+  "matches": [
+    {
+      "id": "6374df4a-...",
+      "title": "Staff AI Engineer",
+      "company": "Anthropic",
+      "location": "Remote",
+      "link": "https://boards.greenhouse.io/anthropic/jobs/...",
+      "match_score": 94.2
+    }
+  ],
+  "total_matches": 487,
+  "page": 1,
+  "page_size": 10,
+  "tier": "free",
+  "matches_used_today": 1,
+  "matches_remaining_today": 49
+}
+```
+
+### `get_job`
+
+Get full details for a specific job.
+
+**Best for:** Deep-diving a match, preparing for applications, comparing roles
+
+**Prompt example:**
+> "Tell me more about the Anthropic role"
+
+**Usage:**
+```json
+{
+  "name": "get_job",
+  "arguments": {
+    "job_id": "6374df4a-..."
+  }
+}
+```
+
+**Returns:** Full job description, required tech stack, seniority fit, location details, salary range (when available), and the direct application URL.
+
+### `get_profile_status`
+
+Check your tier, daily usage, and resume state.
+
+**Best for:** Start of conversation, checking remaining quota, debugging auth issues
+
+**Prompt example:**
+> "How many matches do I have left today?"
+
+**Usage:**
+```json
+{
+  "name": "get_profile_status",
+  "arguments": {}
+}
+```
+
+**Returns:**
+```json
+{
+  "has_resume": true,
+  "tier": "free",
+  "is_verified": true,
+  "matches_used_today": 3,
+  "matches_remaining_today": 47,
+  "daily_limit": 50,
+  "resets_at": "2026-04-10T00:00:00Z"
+}
+```
 
 ## Pricing
 
-### Free tier
+| | Quickstart | Free | Pro |
+|---|---|---|---|
+| **Daily matches** | 10 | 50 | Unlimited |
+| **Signup required** | No | Yes | Yes |
+| **Ranking** | Dual KNN | Dual KNN | ColBERT reranking |
+| **Price** | Free | Free | $19/mo |
 
-- 100 personalized matches per day
-- Unlimited `get_job` and `get_profile_status` calls
-- Dual KNN ranking (fast)
-- All 3 tools
-
-### Pro — $19/mo
-
-- **Unlimited** matches per day
-- ColBERT semantic reranking (better quality)
-- AI-tailored resumes per job (coming v2)
-- AI-generated cover letters (coming v2)
-
-[Upgrade at jobless.dev/dashboard/premium →](https://jobless.dev/dashboard/premium)
+[Upgrade at jobless.dev/dashboard/premium](https://jobless.dev/dashboard/premium)
 
 ## Architecture
 
-This package is a **thin wrapper** around the Jobless REST API. It runs in two modes:
+This package is a **thin wrapper** (~150 LOC) around the Jobless REST API. Two modes:
 
-- **Stdio (local)**: launched as a subprocess by your Claude client. Best for privacy — your API key never leaves your machine except in HTTPS calls to `api.jobless.dev`.
-- **Streamable HTTP (hosted)**: connects to `mcp.jobless.dev`. No install required. Your Claude client sends the API key in the `Authorization` header, we forward it to the Jobless API.
+- **Stdio (local):** launched as a subprocess by your client. API key stays on your machine.
+- **Streamable HTTP (hosted):** `mcp.jobless.dev`. No install needed. Bearer token in every request.
 
-Both modes call the same closed-source Jobless backend (`api.jobless.dev`) which holds the OpenSearch index, Jina v3 embeddings, ranking models, and all the AI logic. This repo is ~150 lines of Python that translates MCP tool calls into HTTPS requests.
+Both call the same closed-source Jobless backend (`api.jobless.dev`) which holds the OpenSearch index, Jina embeddings, and ranking models.
 
 ```
-                    github.com/bendza/jobless-mcp
-                  (MIT, ~150 LOC, this repo)
-                            │
-           ┌────────────────┴────────────────┐
-           │                                 │
-   Local stdio mode                  Hosted HTTP mode
-   (pip install jobless-mcp)         (mcp.jobless.dev)
-           │                                 │
-           └────────────────┬────────────────┘
-                            ▼
-                  api.jobless.dev (Django)
-                            ▼
-              OpenSearch + Postgres + Redis
+              github.com/bendza/jobless-mcp
+            (MIT, ~150 LOC, this repo)
+                      |
+         +------------+------------+
+         |                         |
+   Local stdio mode         Hosted HTTP mode
+   (pip install)            (mcp.jobless.dev)
+         |                         |
+         +------------+------------+
+                      v
+            api.jobless.dev (Django)
+                      v
+        OpenSearch + Postgres + Redis
 ```
 
-## Self-hosting
-
-If you want to run your own hosted instance pointing at your own Jobless deployment:
+## Self-Hosting
 
 ```bash
 pip install jobless-mcp
@@ -142,8 +451,6 @@ PORT=8100 \
 jobless-mcp
 ```
 
-Then put any reverse proxy (Caddy, nginx, Traefik) in front of port 8100.
-
 ## Development
 
 ```bash
@@ -152,78 +459,19 @@ cd jobless-mcp
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-pytest
+pytest -v
 ```
 
-13 tests covering the client layer (happy path, all error codes, network failures, env var handling). All tests mock `api.jobless.dev` with [respx](https://github.com/lundberg/respx) so they run offline in <100ms.
-
-## Tool schemas
-
-### `get_best_matches(limit: int = 10, page: int = 1)`
-
-Returns up to `limit` ranked jobs for the user's profile. Defaults: 10 per call, clamped to [1, 20]. Use `page` for pagination.
-
-**Free tier:** counted against daily 100-call limit.
-**Pro tier:** unlimited.
-
-**Success response:**
-```json
-{
-  "matches": [
-    {
-      "id": "uuid",
-      "title": "Senior ML Engineer",
-      "company": "Anthropic",
-      "location": "Remote",
-      "link": "https://...",
-      "match_score": 94.2
-    }
-  ],
-  "total_matches": 487,
-  "page": 1,
-  "page_size": 10,
-  "tier": "free",
-  "matches_used_today": 1,
-  "matches_remaining_today": 99
-}
-```
-
-**No-resume response:**
-```json
-{
-  "matches": [],
-  "error": "no_resume",
-  "message": "You haven't uploaded a resume yet.",
-  "onboarding_url": "https://jobless.dev/onboarding"
-}
-```
-
-**Rate limit response:**
-```json
-{
-  "error": "rate_limit_exceeded",
-  "message": "Daily rate limit exceeded",
-  "upgrade_url": "https://jobless.dev/dashboard/premium"
-}
-```
-
-### `get_job(job_id: str)`
-
-Returns full details for a specific job UUID. Unlimited on all tiers.
-
-### `get_profile_status()`
-
-Returns `has_resume`, `tier`, `matches_used_today`, `matches_remaining_today`, `resets_at`. Unlimited on all tiers. Useful at the start of a conversation.
+13 tests covering the client layer. All tests mock the API with [respx](https://github.com/lundberg/respx) and run offline in <100ms.
 
 ## Links
 
-- **[jobless.dev](https://jobless.dev)** — the main product
-- **[jobless.dev/mcp](https://jobless.dev/mcp)** — install commands + API key generation
-- **[Issues](https://github.com/bendza/jobless-mcp/issues)**
-- **[Jobless Server](https://github.com/Bendza/Jobless-server)** — the closed-source backend (for reference, not runnable standalone)
+- **[jobless.dev/mcp](https://jobless.dev/mcp)** -- API key + install commands
+- **[jobless.dev](https://jobless.dev)** -- the main product
+- **[Issues](https://github.com/bendza/jobless-mcp/issues)** -- bug reports + feature requests
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT -- see [LICENSE](LICENSE).
 
-Copyright © 2026 Belmin Kurtanovic.
+[![Star History Chart](https://api.star-history.com/svg?repos=bendza/jobless-mcp&type=Date)](https://www.star-history.com/#bendza/jobless-mcp&Date)
