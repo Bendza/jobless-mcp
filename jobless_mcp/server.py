@@ -43,6 +43,7 @@ except ValueError:
 
 mcp = FastMCP(
     "jobless",
+    stateless_http=True,
     instructions=(
         "Jobless gives you personalized job matches inside Claude. "
         "Call get_best_matches to fetch the user's top matches based on "
